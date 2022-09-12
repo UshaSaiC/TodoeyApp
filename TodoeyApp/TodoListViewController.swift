@@ -26,7 +26,6 @@ class TodoListViewController: UITableViewController {
          let item = itemArray[indexPath.row]
          let cell = tableView.dequeueReusableCell(withIdentifier: "TodoItemCell", for: indexPath)
         cell.textLabel?.text = itemArray[indexPath.row]
-         print("here")
          return cell
      }
     
