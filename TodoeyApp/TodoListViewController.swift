@@ -9,7 +9,7 @@ import UIKit
 
 class TodoListViewController: UITableViewController {
 
-    let itemArray = ["First", "Second", "Third"]
+    var itemArray = ["First", "Second", "Third"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -26,18 +26,14 @@ class TodoListViewController: UITableViewController {
          let item = itemArray[indexPath.row]
          let cell = tableView.dequeueReusableCell(withIdentifier: "TodoItemCell", for: indexPath)
         cell.textLabel?.text = itemArray[indexPath.row]
-         
          return cell
      }
     
     //MARK - TableView Delegate Methods
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print(itemArray[indexPath.row])
-        // whenever a row is selected on UI, its in gray for a long time.. so we used below method to deselect it
         tableView.deselectRow(at: indexPath, animated: true)
         
-        // adding a checkmark on UI when an item/cell is selected on UI via using accessoryType property
         if  tableView.cellForRow(at: indexPath)?.accessoryType == .checkmark{
             tableView.cellForRow(at: indexPath)?.accessoryType = .none
         }else{
@@ -45,5 +41,29 @@ class TodoListViewController: UITableViewController {
         }
     }
     
+    //MARK - Add new items
+    
+    @IBAction func addItemPressed(_ sender: UIBarButtonItem) {
+        
+        var textField = UITextField()
+        // UIAlertController helps in generating an alert popup on UI
+        let alert = UIAlertController(title: "Add New Todoey Item", message: "", preferredStyle: .alert)
+        let action = UIAlertAction(title: "Add Item", style: .default) { action in
+            // what happens once the user clicks Add Item button on UIAlert
+            self.itemArray.append(textField.text!)
+            self.tableView.reloadData()
+        }
+        
+        // below code adds a text field in alert popup
+        alert.addTextField { alertTextField in
+            alertTextField.placeholder = "Create new item"
+            textField = alertTextField
+            
+        }
+        alert.addAction(action)
+        
+        // below code helps in displaying the alert
+        present(alert, animated: true, completion: nil)
+    }
 }
 
