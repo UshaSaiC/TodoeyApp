@@ -11,8 +11,17 @@ class TodoListViewController: UITableViewController {
 
     var itemArray = ["First", "Second", "Third"]
     
+    // UserDefaults is an interface to user defaults database that stores the key value pairs when the app launches. This is related to persistent local storage as we dont want the users entered data to be lost when app is terminated/quitted
+    // UserDefaults generally are saved in a plist file, so thats the reason everything is in key-value pairs
+    let defaults = UserDefaults.standard
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // in below lines we are retrieving the saved data in user defaults
+        if let items = defaults.array(forKey: "TodoListArray") as? [String]{
+            itemArray = items
+        }
     }
 
     //MARK - TableView DataSource Methods
@@ -46,11 +55,14 @@ class TodoListViewController: UITableViewController {
     @IBAction func addItemPressed(_ sender: UIBarButtonItem) {
         
         var textField = UITextField()
-        // UIAlertController helps in generating an alert popup on UI
         let alert = UIAlertController(title: "Add New Todoey Item", message: "", preferredStyle: .alert)
         let action = UIAlertAction(title: "Add Item", style: .default) { action in
-            // what happens once the user clicks Add Item button on UIAlert
             self.itemArray.append(textField.text!)
+            
+            // key helps in identifiying the array uniquely when stored in local storage database
+            // 2nd param is key and 1st param is value
+            // in below line we are updating user defaults
+            self.defaults.set(self.itemArray, forKey: "TodoListArray")
             self.tableView.reloadData()
         }
         
