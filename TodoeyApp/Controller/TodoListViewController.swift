@@ -12,11 +12,14 @@ class TodoListViewController: UITableViewController {
     // creating an array of items which is empty currently
     var itemArray = [Item]()
     
-    let defaults = UserDefaults.standard
+    // creating  a path to documents folder to store data on iOS phone document folder
+    // FileManager provides interface to file system
+    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        print(dataFilePath)
         let newItem = Item()
         newItem.title = "Find Mike"
         itemArray.append(newItem)
@@ -29,9 +32,9 @@ class TodoListViewController: UITableViewController {
         newItem3.title = "Find Mike2"
         itemArray.append(newItem3)
         
-        //        if let items = defaults.array(forKey: "TodoListArray") as? [String]{
-        //            itemArray = items
-        //        }
+//        if let items = defaults.array(forKey: "TodoListArray") as? [Item]{
+//            itemArray = items
+//        }
     }
     
     //MARK - TableView DataSource Methods
@@ -43,25 +46,10 @@ class TodoListViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let item = itemArray[indexPath.row]
-        
-        // reusable cells means the cells are reused. let say there is cell 1 to 20 and per screen only 8 cells are displayed. Then when we scroll down and cell 1 goes of the view on screen, it get reused at bottom like at like 9 or 10
-        // In such cases, whatever action we do, in this case the checkmark added will be reused and appearing for cell 9 or 10
-        // another way of creating cells is having a new cell object (as shown in below line).. but the disadvantage of it is once the cell goes of the screen, it gets destrooyed and a new cell would be formed and the actions like adding checkmark will be disappeared on cell and we cant see checkmark
-        // let cell = UITableViewCell(style: .default, reuseIdentifier: "TodoItemCell")
         let cell = tableView.dequeueReusableCell(withIdentifier: "TodoItemCell", for: indexPath)
+        
         cell.textLabel?.text = item.title
-        
-        // ternary operatory
-        // value = condtion? true : false
-        
         cell.accessoryType = item.done ? .checkmark : .none
-        
-//        if item.done == true{
-//            cell.accessoryType = .checkmark
-//        }else{
-//            cell.accessoryType = .none
-//        }
-        
         return cell
     }
     
@@ -70,15 +58,7 @@ class TodoListViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
-//        if itemArray[indexPath.row].done == false{
-//            itemArray[indexPath.row].done = true
-//        }else{
-//            itemArray[indexPath.row].done = false
-//        }
-        
-        // it forces table view to call data source methods again
-        tableView.reloadData()
-        
+        saveItems()
         tableView.deselectRow(at: indexPath, animated: true)
     }
     
@@ -94,11 +74,9 @@ class TodoListViewController: UITableViewController {
             
             self.itemArray.append(newItem)
             
-            self.defaults.set(self.itemArray, forKey: "TodoListArray")
-            self.tableView.reloadData()
+            self.saveItems()
         }
         
-        // below code adds a text field in alert popup
         alert.addTextField { alertTextField in
             alertTextField.placeholder = "Create new item"
             textField = alertTextField
@@ -106,8 +84,24 @@ class TodoListViewController: UITableViewController {
         }
         alert.addAction(action)
         
-        // below code helps in displaying the alert
         present(alert, animated: true, completion: nil)
     }
+    
+    //MARK - Model Manipulation Methods
+    
+    func saveItems(){
+        
+        // below we are creating data that can be encoded into a new property list or plist
+        let encoder = PropertyListEncoder()
+        do{
+            let data = try encoder.encode(itemArray)
+            try data.write(to: dataFilePath!)
+        }catch{
+            print(error)
+        }
+        
+        self.tableView.reloadData()
+    }
+    
 }
 
