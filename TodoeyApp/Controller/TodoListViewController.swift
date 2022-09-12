@@ -13,17 +13,13 @@ class TodoListViewController: UITableViewController {
     var itemArray = [Item]()
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
-    
-    // for user defaults, it would be in preferences which is a .plist file
-    // for codable, it would be in documents which is a .plist file
-    // for core data, it would be in library -> Application Support which is a .sqlite file
     override func viewDidLoad() {
         super.viewDidLoad()
         print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
         loadItems()
     }
     
-    //MARK - TableView DataSource Methods
+    //MARK: - TableView DataSource Methods
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return itemArray.count
@@ -39,16 +35,25 @@ class TodoListViewController: UITableViewController {
         return cell
     }
     
-    //MARK - TableView Delegate Methods
+    //MARK: - TableView Delegate Methods
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        // we can update data via below command
+        // itemArray[indexPath.row].setValue("Completed", forKey: "title")
+        
+        // to delete items from database and UI
+        context.delete(itemArray[indexPath.row])
+        itemArray.remove(at: indexPath.row)
         
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
         saveItems()
         tableView.deselectRow(at: indexPath, animated: true)
     }
     
-    //MARK - Add new items
+    // except for read, rest all operations need to call context to do updations in database
+    
+    //MARK: - Add new items
     
     @IBAction func addItemPressed(_ sender: UIBarButtonItem) {
         
@@ -74,7 +79,7 @@ class TodoListViewController: UITableViewController {
         present(alert, animated: true, completion: nil)
     }
     
-    //MARK - Model Manipulation Methods
+    //MARK: - Model Manipulation Methods
     
     // updated code to create/save data into coredata
     func saveItems(){
