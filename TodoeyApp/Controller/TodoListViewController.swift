@@ -99,4 +99,17 @@ extension TodoListViewController: UISearchBarDelegate{
         
         loadItems(with: request)
     }
+    
+    
+    // below  method is triggerd when text inside search bar is changed
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchBar.text?.count == 0{
+            loadItems()
+            
+            DispatchQueue.main.async {
+                // resignFirstResponder method helps in releasing the cursor from search bar and hiding keypad when no text is around i.e the way it would be at launch of app
+                searchBar.resignFirstResponder()
+            }
+        }
+    }
 }
