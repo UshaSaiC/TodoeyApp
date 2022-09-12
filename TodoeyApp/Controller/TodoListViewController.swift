@@ -11,13 +11,16 @@ import CoreData
 class TodoListViewController: UITableViewController {
 
     var itemArray = [Item]()
-    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
+    
+    // for user defaults, it would be in preferences which is a .plist file
+    // for codable, it would be in documents which is a .plist file
+    // for core data, it would be in library -> Application Support which is a .sqlite file
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-//        loadItems()
+        print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
+        loadItems()
     }
     
     //MARK - TableView DataSource Methods
@@ -85,17 +88,16 @@ class TodoListViewController: UITableViewController {
         self.tableView.reloadData()
     }
     
-//    func loadItems(){
-//        if let data = try? Data(contentsOf: dataFilePath!){
-//            let decoder = PropertyListDecoder()
-//            do{
-//            itemArray = try decoder.decode([Item].self, from: data)
-//            }catch{
-//                print(error)
-//            }
-//        }
-//
-//    }
+    // reading data from context
+    func loadItems(){
+        let request: NSFetchRequest<Item> = Item.fetchRequest()
+        do{
+           itemArray = try context.fetch(request)
+        }catch{
+            print(error)
+        }
+
+    }
     
 }
 
