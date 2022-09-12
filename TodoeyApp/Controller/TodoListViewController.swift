@@ -1,21 +1,13 @@
-//
-//  ViewController.swift
-//  TodoeyApp
-//
-//  Created by Usha Sai Chintha on 12/09/22.
-//
-
 import UIKit
 import CoreData
 
 class TodoListViewController: UITableViewController {
-
+    
     var itemArray = [Item]()
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
         loadItems()
     }
     
@@ -38,20 +30,10 @@ class TodoListViewController: UITableViewController {
     //MARK: - TableView Delegate Methods
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
-        // we can update data via below command
-        // itemArray[indexPath.row].setValue("Completed", forKey: "title")
-        
-        // to delete items from database and UI
-        context.delete(itemArray[indexPath.row])
-        itemArray.remove(at: indexPath.row)
-        
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
         saveItems()
         tableView.deselectRow(at: indexPath, animated: true)
     }
-    
-    // except for read, rest all operations need to call context to do updations in database
     
     //MARK: - Add new items
     
@@ -81,7 +63,6 @@ class TodoListViewController: UITableViewController {
     
     //MARK: - Model Manipulation Methods
     
-    // updated code to create/save data into coredata
     func saveItems(){
         
         do{
@@ -93,16 +74,29 @@ class TodoListViewController: UITableViewController {
         self.tableView.reloadData()
     }
     
-    // reading data from context
-    func loadItems(){
-        let request: NSFetchRequest<Item> = Item.fetchRequest()
+    func loadItems(with request: NSFetchRequest<Item> = Item.fetchRequest()){
         do{
-           itemArray = try context.fetch(request)
+            itemArray = try context.fetch(request)
         }catch{
             print(error)
         }
-
+        tableView.reloadData()
     }
-    
 }
 
+//MARK: - Search Bar Methods
+extension TodoListViewController: UISearchBarDelegate{
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        let request: NSFetchRequest<Item> = Item.fetchRequest()
+        
+        // to query values in database, we use NSPredicate
+        // %@ is replaced by searchBar.text while doing db querying
+        // cd basically means case sensitive and diacrative sensitive(Naïve) which we want to be ignored
+        request.predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
+        
+        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
+        
+        loadItems(with: request)
+    }
+}
