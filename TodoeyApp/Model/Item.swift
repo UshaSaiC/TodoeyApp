@@ -11,6 +11,6 @@ import RealmSwift
 class Item: Object{
     @objc dynamic var title: String = ""
     @objc dynamic var done: Bool = false
-    // here its reverse relationship, we defined it via linking objects where property is the value of item formed via forwrad relationship
+    @objc dynamic var dateCreated: Date?
     var parentCategory = LinkingObjects(fromType: Category.self, property: "items")
 }
