@@ -6,7 +6,6 @@ class TodoListViewController: UITableViewController {
     var itemArray = [Item]()
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     var selectedCategory: Category? {
-        // as soon as selectedCategory is initialised with a value, below method is triggered
         didSet{
             print("here")
             loadItems()
@@ -118,7 +117,6 @@ extension TodoListViewController: UISearchBarDelegate{
             loadItems()
             
             DispatchQueue.main.async {
-                // resignFirstResponder method helps in releasing the cursor from search bar and hiding keypad when no text is around i.e the way it would be at launch of app
                 searchBar.resignFirstResponder()
             }
         }

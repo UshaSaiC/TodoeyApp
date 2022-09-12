@@ -40,12 +40,12 @@ class CategoryTableViewController: UITableViewController {
         performSegue(withIdentifier: "goToItems", sender: self)
     }
 
-    // below method is triggered just before segue is performed
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         let destinationViewController = segue.destination as! TodoListViewController
         if let indexPath = tableView.indexPathForSelectedRow{
             destinationViewController.selectedCategory = categoryArray[indexPath.row]
         }
+        tableView.reloadData()
     }
     
     //MARK: - Add New Categories
@@ -60,6 +60,7 @@ class CategoryTableViewController: UITableViewController {
             self.categoryArray.append(newCategory)
             
             self.saveNames()
+            self.tableView.reloadData()
         }
         
         alert.addTextField { alertTextField in
@@ -80,6 +81,7 @@ class CategoryTableViewController: UITableViewController {
         }catch{
             print(error)
         }
+        
     }
     
     func loadNames(with request: NSFetchRequest<Category> = Category.fetchRequest()){
