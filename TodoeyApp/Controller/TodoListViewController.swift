@@ -8,33 +8,14 @@
 import UIKit
 
 class TodoListViewController: UITableViewController {
-    
-    // creating an array of items which is empty currently
+
     var itemArray = [Item]()
-    
-    // creating  a path to documents folder to store data on iOS phone document folder
-    // FileManager provides interface to file system
     let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        print(dataFilePath)
-        let newItem = Item()
-        newItem.title = "Find Mike"
-        itemArray.append(newItem)
-        
-        let newItem2 = Item()
-        newItem2.title = "Find Mike1"
-        itemArray.append(newItem2)
-        
-        let newItem3 = Item()
-        newItem3.title = "Find Mike2"
-        itemArray.append(newItem3)
-        
-//        if let items = defaults.array(forKey: "TodoListArray") as? [Item]{
-//            itemArray = items
-//        }
+        loadItems()
     }
     
     //MARK - TableView DataSource Methods
@@ -101,6 +82,18 @@ class TodoListViewController: UITableViewController {
         }
         
         self.tableView.reloadData()
+    }
+    
+    func loadItems(){
+        if let data = try? Data(contentsOf: dataFilePath!){
+            let decoder = PropertyListDecoder()
+            do{
+            itemArray = try decoder.decode([Item].self, from: data)
+            }catch{
+                print(error)
+            }
+        }
+        
     }
     
 }
