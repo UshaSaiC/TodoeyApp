@@ -82,6 +82,7 @@ class TodoListViewController: UITableViewController {
     //MARK: - Model Manipulation Methods
     
     func loadItems(){
+        // in below line items are sorted by title
         items = selectedCategory?.items.sorted(byKeyPath: "title", ascending: true)
         tableView.reloadData()
     }
@@ -91,8 +92,6 @@ class TodoListViewController: UITableViewController {
 extension TodoListViewController: UISearchBarDelegate{
 
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-//        items = items?.filter("title CONTAINS[cd] %@", searchBar.text!).sorted(byKeyPath: "title", ascending: true)
-        // soring via date parameter
         items = items?.filter("title CONTAINS[cd] %@", searchBar.text!).sorted(byKeyPath: "dateCreated", ascending: true)
         tableView.reloadData()
     }
