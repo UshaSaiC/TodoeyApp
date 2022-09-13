@@ -7,19 +7,15 @@
 
 import UIKit
 import RealmSwift
-import SwipeCellKit
 
-class CategoryTableViewController: UITableViewController {
+class CategoryTableViewController: SwipeTableViewController {
     
-    // initialized  a new access point to realm database
     let realm = try! Realm()
     var categories: Results<Category>?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         loadNames()
-        
-        tableView.rowHeight = 80
     }
     
     //MARK: - TableView Datasource Methods
@@ -29,8 +25,7 @@ class CategoryTableViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath) as! SwipeTableViewCell
-        cell.delegate = self
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
         cell.textLabel?.text = categories?[indexPath.row].name ?? "No categories"
         return cell
     }
@@ -89,36 +84,18 @@ class CategoryTableViewController: UITableViewController {
         categories = realm.objects(Category.self)
         tableView.reloadData() // this relead method does call all methods in TableView Datasources
     }
-}
-
-//MARK: - Swipe cell delegate methods
-extension CategoryTableViewController: SwipeTableViewCellDelegate{
-    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath, for orientation: SwipeActionsOrientation) -> [SwipeAction]? {
-        guard orientation == .right else { return nil }
-        
-        let deleteAction = SwipeAction(style: .destructive, title: "Delete") { action, indexPath in
-            // handle action by updating model with deletion
-            
-            if let categoryForeDeletion = self.categories?[indexPath.row]{
-                do{
-                    try self.realm.write{
-                        try self.realm.delete(categoryForeDeletion)
-                    }
-                }catch{
-                    print(error)
-                }
-                tableView.reloadData()
-            }
-        }
-            
-            // customize the action appearance
-            deleteAction.image = UIImage(named: "DeleteIcon")
-        return [deleteAction]
-    }
     
-    func collectionView(_ collectionView: UICollectionView, editActionsOptionsForItemAt indexPath: IndexPath, for orientation: SwipeActionsOrientation) -> SwipeOptions {
-        var options = SwipeOptions()
-        options.expansionStyle = .destructive
-        return options
+    // when we override function that lines inside the actual function wont be executed, only the overrided function lines would be getting executed
+    override func updateModel(at indexPath: IndexPath) {
+        if let categoryForeDeletion = self.categories?[indexPath.row]{
+            do{
+                try self.realm.write{
+                    try self.realm.delete(categoryForeDeletion)
+                }
+            }catch{
+                print(error)
+            }
+            tableView.reloadData()
+        }
     }
 }
